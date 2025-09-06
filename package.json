@@ -1,0 +1,26 @@
+{
+  "name": "bobs-burgers-episode-randomizer",
+  "version": "1.0.0",
+  "description": "A fun web app that randomly selects Bob's Burgers episodes to watch",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "serve": "python3 -m http.server 8000"
+  },
+  "keywords": [
+    "bobs-burgers",
+    "episode-randomizer",
+    "web-app",
+    "mobile-responsive"
+  ],
+  "author": "Bob's Burgers Fan",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/bobs-burgers-episode-randomizer"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/bobs-burgers-episode-randomizer/issues"
+  },
+  "homepage": "https://github.com/yourusername/bobs-burgers-episode-randomizer#readme"
+}

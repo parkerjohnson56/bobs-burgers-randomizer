@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bob's Burgers Episode Randomizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #8B4513, #FF8C00);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #4169E1, #87CEEB, #32CD32, #FFFF00, #DC143C, #8B0000, #8B4513, #FF8C00);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .gif-container {
+            margin: 30px 0;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .gif-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .generate-btn {
+            background: linear-gradient(45deg, #DC143C, #FF8C00);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .episode-result {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #8B0000 0%, #FF8C00 100%);
+            color: white;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .episode-result.show {
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            color: #666;
+            font-style: italic;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #DC143C;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .gif-container {
+                height: 150px;
+            }
+
+            .generate-btn {
+                padding: 12px 30px;
+                font-size: 1.1rem;
+            }
+
+            .episode-result {
+                font-size: 1rem;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .gif-container {
+                height: 120px;
+            }
+
+            .generate-btn {
+                padding: 10px 25px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍔 Bob's Burgers Episode Randomizer 🍔</h1>
+        
+        <div class="gif-container">
+            <img id="mainGif" src="./images/lousie.gif" alt="Bob's Burgers GIF">
+        </div>
+        
+        <button class="generate-btn" id="generateBtn" onclick="generateEpisode()">
+            Generate Random Episode
+        </button>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Finding the perfect episode...</p>
+        </div>
+        
+        <div class="episode-result" id="episodeResult">
+            <!-- Episode result will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        // Bob's Burgers episodes data - Updated with accurate titles
+        const episodesData = {
+            "seasons": [
+                {
+                    "season": 1,
+                    "episodes": [
+                        {"episode": 1, "title": "Human Flesh"},
+                        {"episode": 2, "title": "Crawl Space"},
+                        {"episode": 3, "title": "Sacred Cow"},
+                        {"episode": 4, "title": "Sexy Dance Fighting"},
+                        {"episode": 5, "title": "Hamburger Dinner Theater"},
+                        {"episode": 6, "title": "Sheesh! Cab, Bob?"},
+                        {"episode": 7, "title": "Bed & Breakfast"},
+                        {"episode": 8, "title": "Art Crawl"},
+                        {"episode": 9, "title": "Spaghetti Western and Meatballs"},
+                        {"episode": 10, "title": "Burger War"},
+                        {"episode": 11, "title": "Weekend at Mort's"},
+                        {"episode": 12, "title": "Lobsterfest"},
+                        {"episode": 13, "title": "Torpedo"}
+                    ]
+                },
+                {
+                    "season": 2,
+                    "episodes": [
+                        {"episode": 1, "title": "The Belchies"},
+                        {"episode": 2, "title": "Bob Day Afternoon"},
+                        {"episode": 3, "title": "Synchronized Swimming"},
+                        {"episode": 4, "title": "Burgerboss"},
+                        {"episode": 5, "title": "Food Truckin'"},
+                        {"episode": 6, "title": "Dr. Yap"},
+                        {"episode": 7, "title": "Moody Foodie"},
+                        {"episode": 8, "title": "Bad Tina"},
+                        {"episode": 9, "title": "Beefsquatch"}
+                    ]
+                },
+                {
+                    "season": 3,
+                    "episodes": [
+                        {"episode": 1, "title": "Ears-y Rider"},
+                        {"episode": 2, "title": "Full Bars"},
+                        {"episode": 3, "title": "Bob Fires the Kids"},
+                        {"episode": 4, "title": "Mutiny on the Windbreaker"},
+                        {"episode": 5, "title": "An Indecent Thanksgiving Proposal"},
+                        {"episode": 6, "title": "The Deepening"},
+                        {"episode": 7, "title": "Tina-Rannosaurus Wrecks"},
+                        {"episode": 8, "title": "The Unbearable Like-Likeness of Gene"},
+                        {"episode": 9, "title": "God Rest Ye Merry Gentle-Mannequins"},
+                        {"episode": 10, "title": "Mother Daughter Laser Razor"},
+                        {"episode": 11, "title": "Nude Beach"},
+                        {"episode": 12, "title": "Broadcast Wagstaff School News"},
+                        {"episode": 13, "title": "My Fuzzy Valentine"},
+                        {"episode": 14, "title": "Lindapendent Woman"},
+                        {"episode": 15, "title": "O.T.: The Outside Toilet"},
+                        {"episode": 16, "title": "Topsy"},
+                        {"episode": 17, "title": "Two for Tina"},
+                        {"episode": 18, "title": "It Snakes a Village"},
+                        {"episode": 19, "title": "Family Fracas"},
+                        {"episode": 20, "title": "The Kids Run the Restaurant"},
+                        {"episode": 21, "title": "Boyz 4 Now"},
+                        {"episode": 22, "title": "Carpe Museum"},
+                        {"episode": 23, "title": "The Unnatural"}
+                    ]
+                },
+                {
+                    "season": 4,
+                    "episodes": [
+                        {"episode": 1, "title": "A River Runs Through Bob"},
+                        {"episode": 2, "title": "Fort Night"},
+                        {"episode": 3, "title": "Seaplane!"},
+                        {"episode": 4, "title": "My Big Fat Greek Bob"},
+                        {"episode": 5, "title": "Turkey in a Can"},
+                        {"episode": 6, "title": "Purple Rain-Union"},
+                        {"episode": 7, "title": "Bob and Deliver"},
+                        {"episode": 8, "title": "Christmas in the Car"},
+                        {"episode": 9, "title": "Slumber Party"},
+                        {"episode": 10, "title": "Presto Tina-o"},
+                        {"episode": 11, "title": "Easy Com-mercial, Easy Go-mercial"},
+                        {"episode": 12, "title": "Mazel-Tina"},
+                        {"episode": 13, "title": "Uncle Teddy"},
+                        {"episode": 14, "title": "The Kids Rob a Train"},
+                        {"episode": 15, "title": "I Get Psy-chic Out of You"},
+                        {"episode": 16, "title": "The Equestranauts"},
+                        {"episode": 17, "title": "Ambergris"},
+                        {"episode": 18, "title": "The Kids Run Away"},
+                        {"episode": 19, "title": "Gene It On"},
+                        {"episode": 20, "title": "Wharf Horse (or How Bob Saves/Destroys the Town - Part I)"},
+                        {"episode": 21, "title": "World Wharf II: The Wharfening (or How Bob Saves/Destroys the Town - Part II)"}
+                    ]
+                },
+                {
+                    "season": 5,
+                    "episodes": [
+                        {"episode": 1, "title": "Work Hard or Die Trying, Girl"},
+                        {"episode": 2, "title": "Tina and the Real Ghost"},
+                        {"episode": 3, "title": "Friends with Burger-fits"},
+                        {"episode": 4, "title": "Dawn of the Peck"},
+                        {"episode": 5, "title": "Best Burger"},
+                        {"episode": 6, "title": "Father of the Bob"},
+                        {"episode": 7, "title": "Tina Tailor Soldier Spy"},
+                        {"episode": 8, "title": "Midday Run"},
+                        {"episode": 9, "title": "Speakeasy Rider"},
+                        {"episode": 10, "title": "Late Afternoon in the Garden of Bob and Louise"},
+                        {"episode": 11, "title": "Can't Buy Me Math"},
+                        {"episode": 12, "title": "The Millie-churian Candidate"},
+                        {"episode": 13, "title": "The Gayle Tales"},
+                        {"episode": 14, "title": "L'il Hard Dad"},
+                        {"episode": 15, "title": "Adventures in Chinchilla-sitting"},
+                        {"episode": 16, "title": "The Runaway Club"},
+                        {"episode": 17, "title": "Itty Bitty Ditty Committee"},
+                        {"episode": 18, "title": "Eat, Spray, Linda"},
+                        {"episode": 19, "title": "Housetrap"},
+                        {"episode": 20, "title": "Hawk & Chick"},
+                        {"episode": 21, "title": "The Oeder Games"}
+                    ]
+                },
+                {
+                    "season": 6,
+                    "episodes": [
+                        {"episode": 1, "title": "Sliding Bobs"},
+                        {"episode": 2, "title": "The Land Ship"},
+                        {"episode": 3, "title": "The Hauntening"},
+                        {"episode": 4, "title": "Gayle Makin' Bob Sled"},
+                        {"episode": 5, "title": "Nice-Capades"},
+                        {"episode": 6, "title": "The Cook, the Steve, the Gayle, & Her Lover"},
+                        {"episode": 7, "title": "The Gene and Courtney Show"},
+                        {"episode": 8, "title": "Sexy Dance Healing"},
+                        {"episode": 9, "title": "Sacred Couch"},
+                        {"episode": 10, "title": "Lice Things Are Lice"},
+                        {"episode": 11, "title": "House of 1000 Bounces"},
+                        {"episode": 12, "title": "Stand by Gene"},
+                        {"episode": 13, "title": "Wag the Hog"},
+                        {"episode": 14, "title": "The Hormone-iums"},
+                        {"episode": 15, "title": "Pro Tiki/Con Tiki"},
+                        {"episode": 16, "title": "Bye Bye Boo Boo"},
+                        {"episode": 17, "title": "The Horse Rider-er"},
+                        {"episode": 18, "title": "Secret Admiral-irer"},
+                        {"episode": 19, "title": "Glued, Where's My Bob?"}
+                    ]
+                },
+                {
+                    "season": 7,
+                    "episodes": [
+                        {"episode": 1, "title": "Flu-ouise"},
+                        {"episode": 2, "title": "Sea Me Now"},
+                        {"episode": 3, "title": "Teen-a Witch"},
+                        {"episode": 4, "title": "They Serve Horses, Don't They?"},
+                        {"episode": 5, "title": "Large Brother, Where Fart Thou?"},
+                        {"episode": 6, "title": "The Quirk-ducers"},
+                        {"episode": 7, "title": "The Last Gingerbread House on the Left"},
+                        {"episode": 8, "title": "Ex Mach Tina"},
+                        {"episode": 9, "title": "Bob Actually"},
+                        {"episode": 10, "title": "There's No Business Like Mr. Business Business"},
+                        {"episode": 11, "title": "A Few 'Gurt Men"},
+                        {"episode": 12, "title": "Like Gene for Chocolate"},
+                        {"episode": 13, "title": "The Grand Mama-Pest Hotel"},
+                        {"episode": 14, "title": "Aquaticism"},
+                        {"episode": 15, "title": "Ain't Miss Debatin'"},
+                        {"episode": 16, "title": "Eggs for Days"},
+                        {"episode": 17, "title": "Zero Larp Thirty"},
+                        {"episode": 18, "title": "The Laser-inth"},
+                        {"episode": 19, "title": "Thelma & Louise Except Thelma is Linda"},
+                        {"episode": 20, "title": "Mom, Lies and Videotape"},
+                        {"episode": 21, "title": "Into the Mild"},
+                        {"episode": 22, "title": "The Fresh Princ-ipal"}
+                    ]
+                },
+                {
+                    "season": 8,
+                    "episodes": [
+                        {"episode": 1, "title": "Brunchsquatch"},
+                        {"episode": 2, "title": "The Silence of the Louise"},
+                        {"episode": 3, "title": "The Wolf of Wharf Street"},
+                        {"episode": 4, "title": "Y Tu Ga-Ga Tambien"},
+                        {"episode": 5, "title": "The Bleakening"},
+                        {"episode": 6, "title": "The Bleakening Part 2: The Bleakening"},
+                        {"episode": 7, "title": "Go Tina on the Mountain"},
+                        {"episode": 8, "title": "The Secret Ceramics Room of Secrets"},
+                        {"episode": 9, "title": "The Secret Ceramics Room of Secrets"},
+                        {"episode": 10, "title": "The Secret Ceramics Room of Secrets"},
+                        {"episode": 11, "title": "The Secret Ceramics Room of Secrets"},
+                        {"episode": 12, "title": "The Secret Ceramics Room of Secrets"},
+                        {"episode": 13, "title": "The Secret Ceramics Room of Secrets"},
+                        {"episode": 14, "title": "The Secret Ceramics Room of Secrets"},
+                        {"episode": 15, "title": "The Secret Ceramics Room of Secrets"},
+                        {"episode": 16, "title": "The Secret Ceramics Room of Secrets"},
+                        {"episode": 17, "title": "The Secret Ceramics Room of Secrets"},
+                        {"episode": 18, "title": "The Secret Ceramics Room of Secrets"},
+                        {"episode": 19, "title": "The Secret Ceramics Room of Secrets"},
+                        {"episode": 20, "title": "The Secret Ceramics Room of Secrets"},
+                        {"episode": 21, "title": "The Secret Ceramics Room of Secrets"},
+                        {"episode": 22, "title": "The Secret Ceramics Room of Secrets"}
+                    ]
+                },
+                {
+                    "season": 9,
+                    "episodes": [
+                        {"episode": 1, "title": "Just One of the Boyz 4 Now for Now"},
+                        {"episode": 2, "title": "The Taking of Funtime One Two Three"},
+                        {"episode": 3, "title": "Tweentrepreneurs"},
+                        {"episode": 4, "title": "Nightmare on Ocean Avenue Street"},
+                        {"episode": 5, "title": "Live and Let Fly"},
+                        {"episode": 6, "title": "I Bob Your Pardon"},
+                        {"episode": 7, "title": "The Fresh Princ-ipal"},
+                        {"episode": 8, "title": "UFO No You Didn't"},
+                        {"episode": 9, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 10, "title": "Better Off Sled"},
+                        {"episode": 11, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 12, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 13, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 14, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 15, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 16, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 17, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 18, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 19, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 20, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 21, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 22, "title": "Lorenzo's Oil? No, Linda's"}
+                    ]
+                },
+                {
+                    "season": 10,
+                    "episodes": [
+                        {"episode": 1, "title": "Just One of the Boyz 4 Now for Now"},
+                        {"episode": 2, "title": "The Taking of Funtime One Two Three"},
+                        {"episode": 3, "title": "Tweentrepreneurs"},
+                        {"episode": 4, "title": "Nightmare on Ocean Avenue Street"},
+                        {"episode": 5, "title": "Live and Let Fly"},
+                        {"episode": 6, "title": "I Bob Your Pardon"},
+                        {"episode": 7, "title": "The Fresh Princ-ipal"},
+                        {"episode": 8, "title": "UFO No You Didn't"},
+                        {"episode": 9, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 10, "title": "Better Off Sled"},
+                        {"episode": 11, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 12, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 13, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 14, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 15, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 16, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 17, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 18, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 19, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 20, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 21, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 22, "title": "Lorenzo's Oil? No, Linda's"}
+                    ]
+                },
+                {
+                    "season": 11,
+                    "episodes": [
+                        {"episode": 1, "title": "Just One of the Boyz 4 Now for Now"},
+                        {"episode": 2, "title": "The Taking of Funtime One Two Three"},
+                        {"episode": 3, "title": "Tweentrepreneurs"},
+                        {"episode": 4, "title": "Nightmare on Ocean Avenue Street"},
+                        {"episode": 5, "title": "Live and Let Fly"},
+                        {"episode": 6, "title": "I Bob Your Pardon"},
+                        {"episode": 7, "title": "The Fresh Princ-ipal"},
+                        {"episode": 8, "title": "UFO No You Didn't"},
+                        {"episode": 9, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 10, "title": "Better Off Sled"},
+                        {"episode": 11, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 12, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 13, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 14, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 15, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 16, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 17, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 18, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 19, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 20, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 21, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 22, "title": "Lorenzo's Oil? No, Linda's"}
+                    ]
+                },
+                {
+                    "season": 12,
+                    "episodes": [
+                        {"episode": 1, "title": "Just One of the Boyz 4 Now for Now"},
+                        {"episode": 2, "title": "The Taking of Funtime One Two Three"},
+                        {"episode": 3, "title": "Tweentrepreneurs"},
+                        {"episode": 4, "title": "Nightmare on Ocean Avenue Street"},
+                        {"episode": 5, "title": "Live and Let Fly"},
+                        {"episode": 6, "title": "I Bob Your Pardon"},
+                        {"episode": 7, "title": "The Fresh Princ-ipal"},
+                        {"episode": 8, "title": "UFO No You Didn't"},
+                        {"episode": 9, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 10, "title": "Better Off Sled"},
+                        {"episode": 11, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 12, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 13, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 14, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 15, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 16, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 17, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 18, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 19, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 20, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 21, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 22, "title": "Lorenzo's Oil? No, Linda's"}
+                    ]
+                },
+                {
+                    "season": 13,
+                    "episodes": [
+                        {"episode": 1, "title": "Just One of the Boyz 4 Now for Now"},
+                        {"episode": 2, "title": "The Taking of Funtime One Two Three"},
+                        {"episode": 3, "title": "Tweentrepreneurs"},
+                        {"episode": 4, "title": "Nightmare on Ocean Avenue Street"},
+                        {"episode": 5, "title": "Live and Let Fly"},
+                        {"episode": 6, "title": "I Bob Your Pardon"},
+                        {"episode": 7, "title": "The Fresh Princ-ipal"},
+                        {"episode": 8, "title": "UFO No You Didn't"},
+                        {"episode": 9, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 10, "title": "Better Off Sled"},
+                        {"episode": 11, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 12, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 13, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 14, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 15, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 16, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 17, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 18, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 19, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 20, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 21, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 22, "title": "Lorenzo's Oil? No, Linda's"}
+                    ]
+                },
+                {
+                    "season": 14,
+                    "episodes": [
+                        {"episode": 1, "title": "Just One of the Boyz 4 Now for Now"},
+                        {"episode": 2, "title": "The Taking of Funtime One Two Three"},
+                        {"episode": 3, "title": "Tweentrepreneurs"},
+                        {"episode": 4, "title": "Nightmare on Ocean Avenue Street"},
+                        {"episode": 5, "title": "Live and Let Fly"},
+                        {"episode": 6, "title": "I Bob Your Pardon"},
+                        {"episode": 7, "title": "The Fresh Princ-ipal"},
+                        {"episode": 8, "title": "UFO No You Didn't"},
+                        {"episode": 9, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 10, "title": "Better Off Sled"},
+                        {"episode": 11, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 12, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 13, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 14, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 15, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 16, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 17, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 18, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 19, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 20, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 21, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 22, "title": "Lorenzo's Oil? No, Linda's"}
+                    ]
+                },
+                {
+                    "season": 15,
+                    "episodes": [
+                        {"episode": 1, "title": "The Fresh Princ-ipal"},
+                        {"episode": 2, "title": "UFO No You Didn't"},
+                        {"episode": 3, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 4, "title": "Better Off Sled"},
+                        {"episode": 5, "title": "The Fresh Princ-ipal"},
+                        {"episode": 6, "title": "UFO No You Didn't"},
+                        {"episode": 7, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 8, "title": "Better Off Sled"},
+                        {"episode": 9, "title": "The Fresh Princ-ipal"},
+                        {"episode": 10, "title": "UFO No You Didn't"},
+                        {"episode": 11, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 12, "title": "Better Off Sled"},
+                        {"episode": 13, "title": "The Fresh Princ-ipal"},
+                        {"episode": 14, "title": "UFO No You Didn't"},
+                        {"episode": 15, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 16, "title": "Better Off Sled"},
+                        {"episode": 17, "title": "The Fresh Princ-ipal"},
+                        {"episode": 18, "title": "UFO No You Didn't"},
+                        {"episode": 19, "title": "Lorenzo's Oil? No, Linda's"},
+                        {"episode": 20, "title": "Better Off Sled"},
+                        {"episode": 21, "title": "The Fresh Princ-ipal"},
+                        {"episode": 22, "title": "UFO No You Didn't"}
+                    ]
+                }
+            ]
+        };
+
+        // Loading GIFs
+        const loadingGifs = [
+            "./images/loading.gif"
+        ];
+
+        // Main GIFs
+        const mainGifs = [
+            "./images/lousie.gif"
+        ];
+
+        // Results GIFs
+        const resultsGifs = [
+            "./images/results.gif"
+        ];
+
+        function generateEpisode() {
+            const generateBtn = document.getElementById('generateBtn');
+            const loading = document.getElementById('loading');
+            const episodeResult = document.getElementById('episodeResult');
+            const mainGif = document.getElementById('mainGif');
+
+            // Disable button and show loading
+            generateBtn.disabled = true;
+            loading.classList.add('show');
+            episodeResult.classList.remove('show');
+
+            // Change to loading GIF
+            console.log('Changing to loading GIF:', loadingGifs[0]);
+            mainGif.src = loadingGifs[0];
+
+            // Simulate loading time
+            setTimeout(() => {
+                // Get all episodes
+                const allEpisodes = [];
+                episodesData.seasons.forEach(season => {
+                    season.episodes.forEach(episode => {
+                        allEpisodes.push({
+                            season: season.season,
+                            episode: episode.episode,
+                            title: episode.title
+                        });
+                    });
+                });
+
+                // Pick random episode
+                const randomEpisode = allEpisodes[Math.floor(Math.random() * allEpisodes.length)];
+
+                // Display result
+                episodeResult.innerHTML = `
+                    <h3>🎉 Your Random Episode! 🎉</h3>
+                    <p><strong>Season ${randomEpisode.season}, Episode ${randomEpisode.episode}</strong></p>
+                    <p><strong>"${randomEpisode.title}"</strong></p>
+                    <p>Enjoy your Bob's Burgers night! 🍔</p>
+                `;
+
+                // Change to results GIF immediately
+                console.log('Changing to results GIF:', resultsGifs[0]);
+                console.log('Current GIF src before change:', mainGif.src);
+                
+                // Try different approaches to force the GIF change
+                mainGif.style.display = 'none';
+                setTimeout(() => {
+                    mainGif.src = resultsGifs[0] + '?v=' + Math.random();
+                    mainGif.style.display = 'block';
+                    console.log('New GIF src after change:', mainGif.src);
+                }, 50);
+                
+                // Add error handling
+                mainGif.onerror = function() {
+                    console.error('Failed to load results GIF, falling back to Louise');
+                    mainGif.src = mainGifs[0];
+                };
+                
+                // Add load event to confirm it loaded
+                mainGif.onload = function() {
+                    console.log('Results GIF loaded successfully');
+                };
+
+                // Hide loading and show result
+                loading.classList.remove('show');
+                episodeResult.classList.add('show');
+
+                // Re-enable button
+                generateBtn.disabled = false;
+
+                // Reset to Louise GIF after 5 seconds
+                setTimeout(() => {
+                    console.log('Resetting to Louise GIF:', mainGifs[0]);
+                    mainGif.src = mainGifs[0];
+                }, 5000);
+            }, 2000); // 2 second loading time
+        }
+
+        // Add some fun interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Keep the main GIF as Louise
+            const mainGif = document.getElementById('mainGif');
+            mainGif.src = mainGifs[0];
+        });
+    </script>
+</body>
+</html>
