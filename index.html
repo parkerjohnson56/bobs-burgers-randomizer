@@ -26,12 +26,14 @@
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 40px;
+            padding: 30px;
             text-align: center;
             max-width: 500px;
             width: 100%;
             position: relative;
             overflow: hidden;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .container::before {
@@ -40,20 +42,21 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, #4169E1, #87CEEB, #32CD32, #FFFF00, #DC143C, #8B0000, #8B4513, #FF8C00);
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b35, #f7931e, #ff6b35);
         }
 
         h1 {
             color: #333;
-            margin-bottom: 30px;
-            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
             font-weight: bold;
+            line-height: 1.1;
         }
 
         .gif-container {
-            margin: 30px 0;
-            height: 200px;
+            margin: 20px 0;
+            height: 150px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -69,22 +72,22 @@
         }
 
         .generate-btn {
-            background: linear-gradient(45deg, #DC143C, #FF8C00);
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
             color: white;
             border: none;
-            padding: 15px 40px;
-            font-size: 1.2rem;
+            padding: 15px 30px;
+            font-size: 1.1rem;
             font-weight: bold;
-            border-radius: 50px;
+            border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin: 15px 0;
         }
 
         .generate-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
 
         .generate-btn:active {
@@ -98,13 +101,13 @@
         }
 
         .episode-result {
-            margin-top: 30px;
+            margin-top: 20px;
             padding: 20px;
             background: linear-gradient(135deg, #8B0000 0%, #FF8C00 100%);
             color: white;
             border-radius: 15px;
-            font-size: 1.1rem;
-            line-height: 1.6;
+            font-size: 0.95rem;
+            line-height: 1.4;
             display: none;
             animation: fadeIn 0.5s ease-in;
         }
@@ -118,6 +121,7 @@
             display: none;
             color: #666;
             font-style: italic;
+            margin-top: 15px;
         }
 
         .loading.show {
@@ -142,27 +146,34 @@
 
         .spinner {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #DC143C;
+            border-top: 4px solid #ff6b35;
             border-radius: 50%;
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
-            margin: 20px auto;
+            margin: 15px auto;
         }
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
             .container {
                 padding: 30px 20px;
                 margin: 10px;
+                max-width: 100%;
             }
 
             h1 {
-                font-size: 2rem;
+                font-size: 1.2rem;
+                margin-bottom: 15px;
             }
 
             .gif-container {
-                height: 150px;
+                height: 120px;
+                margin: 15px 0;
             }
 
             .generate-btn {
@@ -248,20 +259,70 @@
             }
         }
 
-        // Loading GIFs
-        const loadingGifs = [
-            "./images/loading.gif"
-        ];
+        // All available GIFs organized by category
+        const allGifs = {
+            home: [
+                "./images/lousie.gif",
+                "./images/family.gif",
+                "./images/dancing.gif",
+                "./images/funny-gif-burger-bob-dinner-glasses.gif",
+                "./images/2802.gif",
+                "./images/5126311186b9e6dedda4cef2324ef5ef.gif",
+                "./images/c2cd8576a31b2ad1de40d42b3756a313.gif",
+                "./images/e317f59ebcbe3e63a6b14ad32686b245.gif",
+                "./images/hC67E0091.gif",
+                "./images/iPVRqsz.gif"
+            ],
+            loading: [
+                "./images/loading.gif",
+                "./images/tumblr_oilxi9dyLF1txae4yo2_500.gif",
+                "./images/tumblr_5694c72940883f00d379e8df3d99c1c1_c5338ae2_500.gif",
+                "./images/mr-bottoms.gif",
+                "./images/h9B6D6C80.gif",
+                "./images/gif-of-linda-belcher-saying-crackers-wheres-the-crackers-youre-coming-to-bed-with-me.gif",
+                "./images/d2bafa3b093657b92cf9d1573163dae4.gif",
+                "./images/c6e2056cd55c49901121b5078202cd73.gif",
+                "./images/Bd70JZk.gif",
+                "./images/anigif_sub-buzz-1663-1576806717-1.gif"
+            ],
+            results: [
+                "./images/results.gif",
+                "./images/anigif_sub-buzz-1475-1576800311-3.gif",
+                "./images/a1bacc39b6767b9cb2b8b6617a08fca5.gif",
+                "./images/8912d330c03217f639ebfa7545ffaf3e.gif",
+                "./images/43fe7986bddfd310e9c8ed0f13c6cdab.gif",
+                "./images/4c5daf157ce562e899a5a94d0d38e2c2.gif",
+                "./images/dnacing.webp"
+            ]
+        };
 
-        // Main GIFs
-        const mainGifs = [
-            "./images/lousie.gif"
-        ];
+        // Track used GIFs for current generation round
+        let usedGifs = {
+            home: null,
+            loading: null,
+            results: null
+        };
 
-        // Results GIFs
-        const resultsGifs = [
-            "./images/results.gif"
-        ];
+        // Function to get a random GIF from a category, avoiding duplicates
+        function getRandomGif(category) {
+            const availableGifs = allGifs[category].filter(gif => gif !== usedGifs[category]);
+            if (availableGifs.length === 0) {
+                // If all GIFs have been used, reset and pick from all
+                availableGifs.push(...allGifs[category]);
+            }
+            const randomGif = availableGifs[Math.floor(Math.random() * availableGifs.length)];
+            usedGifs[category] = randomGif;
+            return randomGif;
+        }
+
+        // Function to reset used GIFs for a new generation round
+        function resetUsedGifs() {
+            usedGifs = {
+                home: null,
+                loading: null,
+                results: null
+            };
+        }
 
         async function generateEpisode() {
             const generateBtn = document.getElementById('generateBtn');
@@ -269,14 +330,18 @@
             const episodeResult = document.getElementById('episodeResult');
             const mainGif = document.getElementById('mainGif');
 
+            // Reset used GIFs for new generation round
+            resetUsedGifs();
+
             // Disable button and show loading
             generateBtn.disabled = true;
             loading.classList.add('show');
             episodeResult.classList.remove('show');
 
-            // Change to loading GIF
-            console.log('Changing to loading GIF:', loadingGifs[0]);
-            mainGif.src = loadingGifs[0];
+            // Change to random loading GIF
+            const loadingGif = getRandomGif('loading');
+            console.log('Changing to loading GIF:', loadingGif);
+            mainGif.src = loadingGif;
 
             // Make sure episodes data is loaded
             if (!episodesData) {
@@ -348,22 +413,23 @@
                     <p>Enjoy your Bob's Burgers night! 🍔</p>
                 `;
 
-                // Change to results GIF immediately
-                console.log('Changing to results GIF:', resultsGifs[0]);
+                // Change to random results GIF immediately
+                const resultsGif = getRandomGif('results');
+                console.log('Changing to results GIF:', resultsGif);
                 console.log('Current GIF src before change:', mainGif.src);
                 
                 // Try different approaches to force the GIF change
                 mainGif.style.display = 'none';
                 setTimeout(() => {
-                    mainGif.src = resultsGifs[0] + '?v=' + Math.random();
+                    mainGif.src = resultsGif + '?v=' + Math.random();
                     mainGif.style.display = 'block';
                     console.log('New GIF src after change:', mainGif.src);
                 }, 50);
                 
                 // Add error handling
                 mainGif.onerror = function() {
-                    console.error('Failed to load results GIF, falling back to Louise');
-                    mainGif.src = mainGifs[0];
+                    console.error('Failed to load results GIF, falling back to home GIF');
+                    mainGif.src = getRandomGif('home');
                 };
                 
                 // Add load event to confirm it loaded
@@ -378,19 +444,20 @@
                 // Re-enable button
                 generateBtn.disabled = false;
 
-                // Reset to Louise GIF after 5 seconds
+                // Reset to random home GIF after 5 seconds
                 setTimeout(() => {
-                    console.log('Resetting to Louise GIF:', mainGifs[0]);
-                    mainGif.src = mainGifs[0];
+                    const homeGif = getRandomGif('home');
+                    console.log('Resetting to home GIF:', homeGif);
+                    mainGif.src = homeGif;
                 }, 5000);
             }, 2000); // 2 second loading time
         }
 
         // Add some fun interactions
         document.addEventListener('DOMContentLoaded', function() {
-            // Keep the main GIF as Louise
+            // Set initial random home GIF
             const mainGif = document.getElementById('mainGif');
-            mainGif.src = mainGifs[0];
+            mainGif.src = getRandomGif('home');
             
             // Load episodes data when page loads
             loadEpisodesData();
